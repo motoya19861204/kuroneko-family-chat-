@@ -79,26 +79,49 @@ function App() {
 
       recognition.onresult = (event) => {
         const text = event.results[0][0].transcript;
-        setInputValue(prev => prev + text);
+        if (text) {
+          setInputValue(prev => prev + text);
+        }
+        // 文字が入ったらすぐに停止を試みる
+        setIsRecording(false);
+        recognition.stop();
+      };
+
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
         setIsRecording(false);
       };
 
-      recognition.onerror = () => setIsRecording(false);
-      recognition.onend = () => setIsRecording(false);
+      recognition.onend = () => {
+        setIsRecording(false);
+      };
 
       recognitionRef.current = recognition;
     }
   }, []);
 
   const toggleRecording = () => {
+    if (!recognitionRef.current) return;
+
     if (isRecording) {
-      recognitionRef.current?.stop();
+      recognitionRef.current.stop();
+      setIsRecording(false);
     } else {
       try {
-        recognitionRef.current?.start();
+        recognitionRef.current.start();
         setIsRecording(true);
       } catch (err) {
-        console.error(err);
+        // すでに動いている可能性がある場合は一旦止めてから出し直す
+        recognitionRef.current.abort();
+        setTimeout(() => {
+          try {
+            recognitionRef.current.start();
+            setIsRecording(true);
+          } catch (e) {
+            console.error("Failed to restart speech recognition:", e);
+            setIsRecording(false);
+          }
+        }, 100);
       }
     }
   };
