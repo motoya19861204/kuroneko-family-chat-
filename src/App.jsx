@@ -345,33 +345,37 @@ function App() {
   if (!isJoined) {
     return (
       <div className="login-screen">
-        <img src="/icon-square.png" alt="黒猫" style={{ width: 80, height: 80, borderRadius: '50%', marginBottom: 15 }} />
-        <h1>だれが つかう？</h1>
+        <img src="/icon-square.png" alt="黒猫" style={{ width: 70, height: 70, borderRadius: '50%', marginBottom: 10 }} />
+        <h1>こんにちは！</h1>
         
-        <div className="icon-selector">
-          {USER_ICONS.map(icon => (
-            <div 
-              key={icon.id} 
-              className={`icon-option ${userIcon === icon.id ? 'selected' : ''}`}
-              onClick={() => setUserIcon(icon.id)}
-            >
-              <img src={icon.src} alt={icon.name} />
-              <span className="icon-name">{icon.name}</span>
-            </div>
-          ))}
-        </div>
-
         <form onSubmit={handleJoin} style={{ width: '100%', textAlign: 'center' }}>
-          <input 
-            name="name" 
-            type="text" 
-            defaultValue={userName} 
-            placeholder="おなまえをいれてね" 
-            required 
-            autoComplete='off' 
-          />
-          <br />
-          <button type="submit">チャットルームに入る</button>
+          <div className="input-group">
+            <label>おなまえ（4文字まで）</label>
+            <input 
+              name="name" 
+              type="text" 
+              defaultValue={userName} 
+              placeholder="おなまえ" 
+              required 
+              maxLength={4}
+              autoComplete='off' 
+            />
+          </div>
+
+          <p className="selection-label">アイコンをえらんでね</p>
+          <div className="icon-selector">
+            {USER_ICONS.map(icon => (
+              <div 
+                key={icon.id} 
+                className={`icon-option ${userIcon === icon.id ? 'selected' : ''}`}
+                onClick={() => setUserIcon(icon.id)}
+              >
+                <img src={icon.src} alt={icon.name} />
+              </div>
+            ))}
+          </div>
+
+          <button type="submit" className="login-btn">チャットをはじめる</button>
         </form>
       </div>
     );
