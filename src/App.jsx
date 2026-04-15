@@ -349,6 +349,7 @@ function App() {
         
         <form onSubmit={handleJoin} style={{ width: '100%', textAlign: 'center' }}>
           <div className="input-group">
+            <label>おなまえ（4文字まで）</label>
             <input 
               name="name" 
               type="text" 
@@ -360,6 +361,7 @@ function App() {
             />
           </div>
 
+          <p className="selection-label">アイコンを選んでね</p>
           <div className="icon-selector">
             {USER_ICONS.map(icon => (
               <div 

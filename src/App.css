@@ -122,19 +122,18 @@ body {
 
 /* アイコン選択 */
 .icon-selector {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  margin-bottom: 25px;
-  width: 100%;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin: 10px auto 25px auto;
+  width: fit-content;
 }
 
 .icon-option {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 4px;
+  padding: 5px;
   border: 4px solid transparent;
   border-radius: 50%;
   cursor: pointer;
@@ -147,8 +146,8 @@ body {
 }
 
 .icon-option img {
-  width: 60px;
-  height: 60px;
+  width: 55px;
+  height: 55px;
   border-radius: 50%;
   object-fit: cover;
   background: #f9f9f9;
