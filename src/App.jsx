@@ -345,24 +345,21 @@ function App() {
   if (!isJoined) {
     return (
       <div className="login-screen">
-        <img src="/icon-square.png" alt="黒猫" style={{ width: 70, height: 70, borderRadius: '50%', marginBottom: 10 }} />
-        <h1>こんにちは！</h1>
+        <img src="/icon-square.png" alt="黒猫" style={{ width: 60, height: 60, borderRadius: '50%', marginBottom: 15 }} />
         
         <form onSubmit={handleJoin} style={{ width: '100%', textAlign: 'center' }}>
           <div className="input-group">
-            <label>おなまえ（4文字まで）</label>
             <input 
               name="name" 
               type="text" 
               defaultValue={userName} 
-              placeholder="おなまえ" 
+              placeholder="なまえ" 
               required 
               maxLength={4}
               autoComplete='off' 
             />
           </div>
 
-          <p className="selection-label">アイコンをえらんでね</p>
           <div className="icon-selector">
             {USER_ICONS.map(icon => (
               <div 
@@ -375,7 +372,7 @@ function App() {
             ))}
           </div>
 
-          <button type="submit" className="login-btn">チャットをはじめる</button>
+          <button type="submit" className="login-btn">入室</button>
         </form>
       </div>
     );
