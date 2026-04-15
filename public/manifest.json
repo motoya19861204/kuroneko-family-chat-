@@ -1,0 +1,17 @@
+{
+  "name": "黒猫ファミリーチャット",
+  "short_name": "黒猫家族",
+  "description": "家族と黒猫の神様でお話しするグループチャット",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#7494C0",
+  "theme_color": "#5B7A99",
+  "icons": [
+    {
+      "src": "/Neko-up.jpg",
+      "sizes": "192x192 512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
