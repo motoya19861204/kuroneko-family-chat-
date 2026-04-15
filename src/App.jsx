@@ -68,34 +68,23 @@ function App() {
   }, [userName]);
 
   // 通知を送信する関数 (OneSignal REST API)
-  const sendPushNotification = async (author, text, isAIPly = false) => {
+  const sendPushNotification = async (author, text) => {
     if (!ONESIGNAL_APP_ID || !ONESIGNAL_REST_KEY) return;
 
     try {
-      const payload = {
-        app_id: ONESIGNAL_APP_ID,
-        headings: { "en": "黒猫ファミリーチャット", "ja": "黒猫ファミリーチャット" },
-        contents: { "en": `${author}: ${text}`, "ja": `${author}: ${text}` },
-        url: "https://kuroneko-family-chat.vercel.app/"
-      };
-
-      if (isAIPly) {
-        // AIの返信は全員に送る
-        payload.included_segments = ["All"];
-      } else {
-        // 人間の発信は「自分以外」に送る
-        payload.filters = [
-          { field: "tag", key: "user_name", relation: "!=", value: author }
-        ];
-      }
-
       await fetch("https://onesignal.com/api/v1/notifications", {
         method: "POST",
         headers: {
           "Content-Type": "application/json; charset=utf-8",
           "Authorization": `Basic ${ONESIGNAL_REST_KEY}`
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({
+          app_id: ONESIGNAL_APP_ID,
+          included_segments: ["All"], // 全員に送る
+          headings: { "en": "黒猫ファミリーチャット", "ja": "黒猫ファミリーチャット" },
+          contents: { "en": `${author}: ${text}`, "ja": `${author}: ${text}` },
+          url: "https://kuroneko-family-chat.vercel.app/" // アプリを開くURL
+        })
       });
     } catch (err) {
       console.error("Push notification error:", err);
