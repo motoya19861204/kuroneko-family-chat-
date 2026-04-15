@@ -6,6 +6,8 @@ import { ref, onValue, set, query, limitToLast } from 'firebase/database';
 const FIREBASE_CONFIGURED = !!import.meta.env.VITE_FIREBASE_API_KEY;
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "";
+const ONESIGNAL_APP_ID = import.meta.env.VITE_ONESIGNAL_APP_ID || "";
+const ONESIGNAL_REST_KEY = import.meta.env.VITE_ONESIGNAL_REST_API_KEY || "";
 
 const SYSTEM_INSTRUCTION = `
 あなたは「はっぱ姉妹の日常」に登場する、黒猫の姿をした「神様」です。
@@ -35,6 +37,46 @@ function App() {
   const [isRecording, setIsRecording] = useState(false);
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
+
+  // OneSignal初期化
+  useEffect(() => {
+    if (ONESIGNAL_APP_ID) {
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      window.OneSignalDeferred.push(async function(OneSignal) {
+        await OneSignal.init({
+          appId: ONESIGNAL_APP_ID,
+          safari_web_id: "web.onesignal.auto.10425890-580a-4221-a477-7427189154f3",
+          notifyButton: {
+            enable: true,
+          },
+        });
+      });
+    }
+  }, []);
+
+  // 通知を送信する関数 (OneSignal REST API)
+  const sendPushNotification = async (author, text) => {
+    if (!ONESIGNAL_APP_ID || !ONESIGNAL_REST_KEY) return;
+
+    try {
+      await fetch("https://onesignal.com/api/v1/notifications", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+          "Authorization": `Basic ${ONESIGNAL_REST_KEY}`
+        },
+        body: JSON.stringify({
+          app_id: ONESIGNAL_APP_ID,
+          included_segments: ["All"], // 全員に送る
+          headings: { "en": "黒猫ファミリーチャット", "ja": "黒猫ファミリーチャット" },
+          contents: { "en": `${author}: ${text}`, "ja": `${author}: ${text}` },
+          url: "https://kuroneko-family-chat.vercel.app/" // アプリを開くURL
+        })
+      });
+    } catch (err) {
+      console.error("Push notification error:", err);
+    }
+  };
 
   // 初回ロード時とFirebaseからの同期
   useEffect(() => {
@@ -177,6 +219,9 @@ function App() {
     }
     setInputValue('');
 
+    // 通知を飛ばす
+    sendPushNotification(userName, inputValue.trim());
+
     // AI呼び出しトリガー：「ねこ」「ネコ」「猫」「クロ」が含まれている場合
     const triggerWords = ['ねこ', 'ネコ', '猫', 'クロ', '神様'];
     const shouldCatReply = triggerWords.some(word => newMsg.text.includes(word));
@@ -229,6 +274,8 @@ function App() {
       if (data.candidates && data.candidates[0]) {
         const replyText = data.candidates[0].content.parts[0].text;
         addCatMessage(replyText, currentHistory);
+        // 猫の返信も通知する
+        sendPushNotification("黒猫の神様", replyText);
       } else if (data.error && (data.error.code === 429 || data.error.code === 503)) {
         if (retryCount < 2) {
           await new Promise(resolve => setTimeout(resolve, 1000));
