@@ -68,9 +68,11 @@ function App() {
         body: JSON.stringify({
           app_id: ONESIGNAL_APP_ID,
           included_segments: ["All"], // 全員に送る
-          headings: { "en": "黒猫ファミリーチャット", "ja": "黒猫ファミリーチャット" },
-          contents: { "en": `${author}: ${text}`, "ja": `${author}: ${text}` },
-          url: "https://kuroneko-family-chat.vercel.app/" // アプリを開くURL
+          headings: { "ja": "黒猫ファミリーチャット" },
+          contents: { "ja": `${author}: ${text}` },
+          url: "https://kuroneko-family-chat.vercel.app/",
+          ios_badgeType: "Increase",
+          ios_badgeCount: 1
         })
       });
     } catch (err) {
