@@ -231,7 +231,7 @@ function App() {
         addCatMessage(replyText, currentHistory);
       } else if (data.error && (data.error.code === 429 || data.error.code === 503)) {
         if (retryCount < 2) {
-          await new Promise(resolve => setTimeout(resolve, 5000));
+          await new Promise(resolve => setTimeout(resolve, 1000));
           await askGemini(currentHistory, modelIndex, retryCount + 1);
         } else if (modelIndex < MODELS.length - 1) {
           await askGemini(currentHistory, modelIndex + 1, 0);
@@ -245,7 +245,7 @@ function App() {
       }
     } catch (error) {
       if (retryCount < 2) {
-        await new Promise(resolve => setTimeout(resolve, 5000));
+        await new Promise(resolve => setTimeout(resolve, 1000));
         await askGemini(currentHistory, modelIndex, retryCount + 1);
       } else if (modelIndex < MODELS.length - 1) {
         await askGemini(currentHistory, modelIndex + 1, 0);
