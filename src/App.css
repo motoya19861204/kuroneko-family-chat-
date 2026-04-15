@@ -101,32 +101,67 @@ body {
   align-self: flex-start;
 }
 
+/* アイコン選択 */
+.icon-selector {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.icon-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.icon-option.selected {
+  background-color: #f0fdf4;
+  border-color: #06C755;
+}
+
+.icon-option img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 5px;
+  background: #f9f9f9;
+}
+
+.icon-name {
+  font-size: 0.85rem;
+  color: #555;
+  font-weight: bold;
+}
+
 /* アバター */
 .avatar-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   margin: 0 8px;
-  min-width: 45px;
+  min-width: 50px;
 }
 
-.avatar {
-  width: 40px;
-  height: 40px;
+.avatar-img {
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background-color: #ddd;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  overflow: hidden;
+  object-fit: cover;
   border: 2px solid white;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-.avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.me-avatar {
+  margin-left: 8px;
+  margin-right: 0;
 }
 
 .sender-name {

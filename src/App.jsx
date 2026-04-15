@@ -9,6 +9,13 @@ const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "";
 const ONESIGNAL_APP_ID = import.meta.env.VITE_ONESIGNAL_APP_ID || "";
 const ONESIGNAL_REST_KEY = import.meta.env.VITE_ONESIGNAL_REST_API_KEY || "";
 
+const USER_ICONS = [
+  { id: 'papa', name: 'パパ', src: '/icons/papa.png' },
+  { id: 'mama', name: 'ママ', src: '/icons/mama.png' },
+  { id: 'onechan', name: 'おねえちゃん', src: '/icons/onechan.png' },
+  { id: 'imouto', name: 'いもうと', src: '/icons/imouto.png' },
+];
+
 const SYSTEM_INSTRUCTION = `
 あなたは「はっぱ姉妹の日常」に登場する、黒猫の姿をした「神様」です。
 以下の性格、口調、制約を厳守してください。
@@ -30,6 +37,7 @@ const SYSTEM_INSTRUCTION = `
 
 function App() {
   const [userName, setUserName] = useState(localStorage.getItem('userName') || '');
+  const [userIcon, setUserIcon] = useState(localStorage.getItem('userIcon') || 'papa');
   const [isJoined, setIsJoined] = useState(false); // ★ 常に最初は名前確認画面を出すように変更
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
@@ -191,6 +199,7 @@ function App() {
     const name = e.target.elements.name.value.trim();
     if (name) {
       localStorage.setItem('userName', name);
+      localStorage.setItem('userIcon', userIcon);
       setUserName(name);
       setIsJoined(true);
     }
@@ -203,6 +212,7 @@ function App() {
     const newMsg = {
       id: Date.now(),
       author: userName,
+      userIcon: userIcon,
       text: inputValue.trim(),
       isCat: false
     };
@@ -306,6 +316,7 @@ function App() {
     const catMsg = {
       id: Date.now(),
       author: '黒猫',
+      userIcon: 'cat',
       text: text,
       isCat: true
     };
@@ -334,14 +345,28 @@ function App() {
   if (!isJoined) {
     return (
       <div className="login-screen">
-        <img src="/Neko-up.jpg" alt="黒猫" style={{ width: 100, borderRadius: '50%', marginBottom: 20 }} />
-        <h1>あなたのおなまえは？</h1>
+        <img src="/icon-square.png" alt="黒猫" style={{ width: 80, height: 80, borderRadius: '50%', marginBottom: 15 }} />
+        <h1>だれが つかう？</h1>
+        
+        <div className="icon-selector">
+          {USER_ICONS.map(icon => (
+            <div 
+              key={icon.id} 
+              className={`icon-option ${userIcon === icon.id ? 'selected' : ''}`}
+              onClick={() => setUserIcon(icon.id)}
+            >
+              <img src={icon.src} alt={icon.name} />
+              <span className="icon-name">{icon.name}</span>
+            </div>
+          ))}
+        </div>
+
         <form onSubmit={handleJoin} style={{ width: '100%', textAlign: 'center' }}>
           <input 
             name="name" 
             type="text" 
             defaultValue={userName} 
-            placeholder="パパ、ママ、〇〇ちゃん" 
+            placeholder="おなまえをいれてね" 
             required 
             autoComplete='off' 
           />
@@ -358,15 +383,21 @@ function App() {
         {messages.map((msg) => {
           const isMe = msg.author === userName;
           const isCat = msg.isCat;
+          // アイコンのURLを取得
+          const iconInfo = USER_ICONS.find(i => i.id === msg.userIcon);
+          const iconSrc = isCat ? "/icon-square.png" : (iconInfo ? iconInfo.src : "/icons/papa.png");
 
           return (
             <div key={msg.id} className={`message-row ${isMe ? 'me' : 'other'} ${isCat ? 'cat' : ''}`}>
               {!isMe && (
                 <div className="avatar-container">
-                  <div className="avatar">
-                    {isCat ? <img src="/Neko-default.jpg" alt="猫" /> : msg.author.charAt(0)}
-                  </div>
-                  <div className="sender-name">{msg.author}</div>
+                    <img src={iconSrc} className="avatar-img" alt={msg.author} />
+                    <div className="sender-name">{msg.author}</div>
+                </div>
+              )}
+              {isMe && (
+                <div className="avatar-container me-avatar">
+                    <img src={iconSrc} className="avatar-img" alt="me" />
                 </div>
               )}
               <div className="bubble">
@@ -378,9 +409,10 @@ function App() {
         {isTyping && (
           <div className="message-row other cat">
             <div className="avatar-container">
-              <div className="avatar"><img src="/Neko-up.jpg" alt="猫" /></div>
+               <img src="/icon-square.png" className="avatar-img" alt="猫" />
+               <div className="sender-name">黒猫の神様</div>
             </div>
-            <div className="bubble" style={{ color: '#888' }}>フンッ…考え中じゃ…</div>
+            <div className="bubble thinking">フンッ…考え中じゃ…</div>
           </div>
         )}
         <div ref={messagesEndRef} />
