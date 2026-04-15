@@ -191,11 +191,19 @@ function App() {
     }
   };
 
-  const askGemini = async (currentHistory, retryCount = 0) => {
+  const askGemini = async (currentHistory, modelIndex = 0, retryCount = 0) => {
     if (!GEMINI_API_KEY) {
-      addCatMessage("APIキーが設定されておらぬぞ！.envファイルを確認せい！");
+      addCatMessage("APIキーが設定されておらぬぞ！.envファイルを確認せい！", currentHistory);
       return;
     }
+
+    const MODELS = [
+      "gemini-2.5-flash-lite",
+      "gemini-2.5-flash",
+      "gemini-3-flash-preview"
+    ];
+
+    const modelName = MODELS[modelIndex] || MODELS[0];
 
     // 最新20件の履歴をGeminiの形式に変換
     const promptHistory = currentHistory.slice(-20).map(m => {
@@ -207,7 +215,7 @@ function App() {
     });
 
     try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${GEMINI_API_KEY}`, {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${GEMINI_API_KEY}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -217,14 +225,16 @@ function App() {
       });
 
       const data = await response.json();
+
       if (data.candidates && data.candidates[0]) {
         const replyText = data.candidates[0].content.parts[0].text;
         addCatMessage(replyText, currentHistory);
-      } else if (data.error && data.error.code === 429) {
-        if (retryCount < 3) {
-          // 制限に引っかかった場合は5秒待って再リトライ
+      } else if (data.error && (data.error.code === 429 || data.error.code === 503)) {
+        if (retryCount < 2) {
           await new Promise(resolve => setTimeout(resolve, 5000));
-          await askGemini(currentHistory, retryCount + 1);
+          await askGemini(currentHistory, modelIndex, retryCount + 1);
+        } else if (modelIndex < MODELS.length - 1) {
+          await askGemini(currentHistory, modelIndex + 1, 0);
         } else {
           addCatMessage("我は今とても忙しいのじゃ……また後で呼ぶがよい！", currentHistory);
         }
@@ -234,9 +244,11 @@ function App() {
         addCatMessage("むむ……我も少し疲れたわい。（予期せぬエラー）", currentHistory);
       }
     } catch (error) {
-      if (retryCount < 3) {
+      if (retryCount < 2) {
         await new Promise(resolve => setTimeout(resolve, 5000));
-        await askGemini(currentHistory, retryCount + 1);
+        await askGemini(currentHistory, modelIndex, retryCount + 1);
+      } else if (modelIndex < MODELS.length - 1) {
+        await askGemini(currentHistory, modelIndex + 1, 0);
       } else {
         addCatMessage(`通信エラーじゃ！ ${error.message}`, currentHistory);
       }
