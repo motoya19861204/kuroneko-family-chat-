@@ -315,7 +315,7 @@ function App() {
   const addCatMessage = (text, history) => {
     const catMsg = {
       id: Date.now(),
-      author: '黒猫の神様',
+      author: '黒猫',
       userIcon: 'cat',
       text: text,
       isCat: true
@@ -394,8 +394,8 @@ function App() {
             <div key={msg.id} className={`message-row ${isMe ? 'me' : 'other'} ${isCat ? 'cat' : ''}`}>
               {!isMe && (
                 <div className="avatar-container">
-                    <img src={iconSrc} className="avatar-img" alt={isCat ? "黒猫の神様" : msg.author} />
-                    <div className="sender-name">{isCat ? "黒猫の神様" : msg.author}</div>
+                    <img src={iconSrc} className="avatar-img" alt={isCat ? "黒猫" : msg.author} />
+                    <div className="sender-name">{isCat ? "黒猫" : msg.author}</div>
                 </div>
               )}
               {isMe && (
@@ -413,7 +413,7 @@ function App() {
           <div className="message-row other cat">
             <div className="avatar-container">
                <img src="/icon-square.png" className="avatar-img" alt="猫" />
-               <div className="sender-name">黒猫の神様</div>
+               <div className="sender-name">黒猫</div>
             </div>
             <div className="bubble thinking">フンッ…考え中じゃ…</div>
           </div>
