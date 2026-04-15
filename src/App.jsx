@@ -220,7 +220,7 @@ function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: promptHistory,
-          systemInstruction: { parts: [{ text: SYSTEM_INSTRUCTION }] }
+          system_instruction: { parts: [{ text: SYSTEM_INSTRUCTION }] }
         })
       });
 
