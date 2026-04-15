@@ -200,9 +200,7 @@ function App() {
     const MODELS = [
       "gemini-2.5-flash-lite",
       "gemini-2.5-flash",
-      "gemini-3-flash-preview",
-      "gemini-1.5-flash",
-      "gemini-1.5-pro"
+      "gemini-3-flash-preview"
     ];
 
     const modelName = MODELS[modelIndex] || MODELS[0];
