@@ -70,34 +70,23 @@ function App() {
   }, [userName]);
 
   // 通知を送信する関数 (OneSignal REST API)
-  const sendPushNotification = async (author, text, isAIPly = false) => {
+  const sendPushNotification = async (author, text) => {
     if (!ONESIGNAL_APP_ID || !ONESIGNAL_REST_KEY) return;
 
     try {
-      const payload = {
-        app_id: ONESIGNAL_APP_ID,
-        headings: { "en": "黒猫ファミリーチャット", "ja": "黒猫ファミリーチャット" },
-        contents: { "en": `${author}: ${text}`, "ja": `${author}: ${text}` },
-        url: "https://kuroneko-family-chat.vercel.app/"
-      };
-
-      if (isAIPly) {
-        payload.included_segments = ["All"];
-      } else {
-        payload.filters = [
-          { field: "tag", key: "user_name", relation: "!=", value: author },
-          { operator: "OR" },
-          { field: "tag", key: "user_name", relation: "not_exists" }
-        ];
-      }
-
       const response = await fetch("https://onesignal.com/api/v1/notifications", {
         method: "POST",
         headers: {
           "Content-Type": "application/json; charset=utf-8",
           "Authorization": `Basic ${ONESIGNAL_REST_KEY}`
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({
+          app_id: ONESIGNAL_APP_ID,
+          included_segments: ["All"], // 全員に送る
+          headings: { "en": "黒猫ファミリーチャット", "ja": "黒猫ファミリーチャット" },
+          contents: { "en": `${author}: ${text}`, "ja": `${author}: ${text}` },
+          url: "https://kuroneko-family-chat.vercel.app/" // アプリを開くURL
+        })
       });
 
       if (!response.ok) {
@@ -309,8 +298,8 @@ function App() {
       if (data.candidates && data.candidates[0]) {
         const replyText = data.candidates[0].content.parts[0].text;
         addCatMessage(replyText, currentHistory);
-        // 猫の返信も通知する（AIなので全員に飛ばす）
-        sendPushNotification("黒猫", replyText, true);
+        // 猫の返信も通知する
+        sendPushNotification("黒猫", replyText);
       } else if (data.error && (data.error.code === 429 || data.error.code === 503)) {
         if (retryCount < 2) {
           await new Promise(resolve => setTimeout(resolve, 1000));
