@@ -72,7 +72,7 @@ function App() {
     if (!ONESIGNAL_APP_ID || !ONESIGNAL_REST_KEY) return;
 
     try {
-      await fetch("https://onesignal.com/api/v1/notifications", {
+      const response = await fetch("https://onesignal.com/api/v1/notifications", {
         method: "POST",
         headers: {
           "Content-Type": "application/json; charset=utf-8",
@@ -86,8 +86,15 @@ function App() {
           url: "https://kuroneko-family-chat.vercel.app/" // アプリを開くURL
         })
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("OneSignal API Error details:", errorData);
+      } else {
+        console.log("Push notification sent successfully!");
+      }
     } catch (err) {
-      console.error("Push notification error:", err);
+      console.error("Critical Push notification error:", err);
     }
   };
 
