@@ -337,15 +337,15 @@ function App() {
           'surprise': 'surprised.png'
         };
 
-        // [mood:xxx] または ［mood:xxx］ を探す（全角にも対応）
-        const emotionMatch = replyText.match(/[\[［]mood[:：](.*?)[\］］]/i);
+        // [mood:xxx] または ［mood:xxx］ を探す（全角・記号の揺れに対応）
+        const emotionMatch = replyText.match(/[\[［]mood[:：]([^\]］]+)[\]］]/i);
         if (emotionMatch && emotionMatch[1]) {
           const emotionKey = emotionMatch[1].trim().toLowerCase();
           if (emotionMap[emotionKey]) {
             iconPath = `/icons/neko/${emotionMap[emotionKey]}`;
           }
-          // 本文からタグを削除
-          replyText = replyText.replace(/[\[［]mood[:：].*?[\］］]/gi, '').trim();
+          // 本文からタグ（全角半角問わず）を削除
+          replyText = replyText.replace(/[\[［]mood[:：].*?[\]］]/gi, '').trim();
         }
 
         addCatMessage(replyText, currentHistory, iconPath, data.candidates[0].content.parts[0].text);
