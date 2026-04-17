@@ -162,20 +162,28 @@ body {
   min-width: 50px;
 }
 
-.avatar-img {
+.avatar-frame {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  object-fit: cover;
   border: 2px solid white;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  background-color: white; /* 余白ができても自然なように白背景を追加 */
+  background-color: white;
+  overflow: hidden; /* ここで中の画像を切り抜く */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .cat .avatar-img {
-  object-fit: cover;
-  object-position: center 20%; /* 耳が上端に来るように調整 */
-  transform: scale(1.25); /* 1.15から1.25へ微増 */
+  object-position: center 20%;
+  transform: scale(1.25); /* 1.25倍にズーム */
 }
 
 .me-avatar {
@@ -260,15 +268,16 @@ body {
   background-color: #ccc;
 }
 
-.login-cat-icon {
+.login-avatar-frame {
   width: 60px;
   height: 60px;
-  border-radius: 50%;
   margin-bottom: 15px;
+}
+
+.login-cat-icon {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   object-position: center 20%;
   transform: scale(1.25);
-  background-color: white;
-  border: 2px solid white;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }

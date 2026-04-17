@@ -411,7 +411,9 @@ function App() {
   if (!isJoined) {
     return (
       <div className="login-screen">
-        <img src="/icons/neko/default.png" alt="黒猫" className="login-cat-icon" />
+        <div className="avatar-frame login-avatar-frame">
+          <img src="/icons/neko/default.png" alt="黒猫" className="login-cat-icon" />
+        </div>
         
         <form onSubmit={handleJoin} style={{ width: '100%', textAlign: 'center' }}>
           <div className="input-group">
@@ -460,13 +462,17 @@ function App() {
             <div key={msg.id} className={`message-row ${isMe ? 'me' : 'other'} ${isCat ? 'cat' : ''}`}>
               {!isMe && (
                 <div className="avatar-container">
-                    <img src={iconSrc} className="avatar-img" alt={isCat ? "黒猫" : msg.author} />
+                    <div className="avatar-frame">
+                       <img src={iconSrc} className="avatar-img" alt={isCat ? "黒猫" : msg.author} />
+                    </div>
                     <div className="sender-name">{isCat ? "黒猫" : msg.author}</div>
                 </div>
               )}
               {isMe && (
                 <div className="avatar-container me-avatar">
-                    <img src={iconSrc} className="avatar-img" alt="me" />
+                    <div className="avatar-frame">
+                       <img src={iconSrc} className="avatar-img" alt="me" />
+                    </div>
                 </div>
               )}
               <div className="bubble">
@@ -478,7 +484,9 @@ function App() {
         {isTyping && (
           <div className="message-row other cat">
             <div className="avatar-container">
-               <img src="/icons/neko/default.png" className="avatar-img" alt="猫" />
+               <div className="avatar-frame">
+                  <img src="/icons/neko/default.png" className="avatar-img" alt="猫" />
+               </div>
                <div className="sender-name">黒猫</div>
             </div>
             <div className="bubble thinking">フンッ…考え中じゃ…</div>
