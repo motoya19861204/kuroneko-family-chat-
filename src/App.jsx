@@ -399,7 +399,7 @@ function App() {
   if (!isJoined) {
     return (
       <div className="login-screen">
-        <img src="/icon-square.png" alt="黒猫" style={{ width: 60, height: 60, borderRadius: '50%', marginBottom: 15 }} />
+        <img src="/icons/neko/default.png" alt="黒猫" style={{ width: 60, height: 60, borderRadius: '50%', marginBottom: 15 }} />
         
         <form onSubmit={handleJoin} style={{ width: '100%', textAlign: 'center' }}>
           <div className="input-group">
@@ -442,7 +442,7 @@ function App() {
           const isCat = msg.isCat;
           // アイコンのURLを取得
           const iconInfo = USER_ICONS.find(i => i.id === msg.userIcon);
-          const iconSrc = isCat ? (msg.userIcon || "/icons/neko/default.png") : (iconInfo ? iconInfo.src : "/icons/papa.png");
+          const iconSrc = isCat ? (msg.userIcon?.startsWith('/') ? msg.userIcon : "/icons/neko/default.png") : (iconInfo ? iconInfo.src : "/icons/papa.png");
 
           return (
             <div key={msg.id} className={`message-row ${isMe ? 'me' : 'other'} ${isCat ? 'cat' : ''}`}>
