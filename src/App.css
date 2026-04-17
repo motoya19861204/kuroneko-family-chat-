@@ -169,6 +169,12 @@ body {
   object-fit: cover;
   border: 2px solid white;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  background-color: white; /* 余白ができても自然なように白背景を追加 */
+}
+
+.cat .avatar-img {
+  object-fit: contain; /* ヒゲなどが切れないように全体を表示 */
+  padding: 1px;
 }
 
 .me-avatar {
@@ -251,4 +257,15 @@ body {
 
 .send-btn:disabled {
   background-color: #ccc;
+}
+
+.login-cat-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  margin-bottom: 15px;
+  object-fit: contain;
+  background-color: white;
+  border: 2px solid white;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
