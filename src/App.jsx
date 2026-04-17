@@ -35,6 +35,16 @@ const SYSTEM_INSTRUCTION = `
 - 語尾に「〜じゃ」「〜のう」「〜であるぞ」などを混ぜる。
 - 時おり猫らしいしぐさ（「…ニャ。」「フンッ」など）を入れる。
 - 回答にカッコをふりがな以外の目的で使わないこと。
+
+【感情表現（最優先）】
+返信の最後に、今の自分の気分に合わせて以下のいずれかのタグを必ず「1つだけ」含めること。
+- [表情:通常] （特に感情がない、または冷静な時）
+- [表情:怒り] （怒っている、威厳を示している、または厳しい時）
+- [表情:にやり] （企んでいる、優越感に浸っている、または得意げな時）
+- [表情:悲しい] （落ち込んでいる、同情している、または哀愁漂う時）
+- [表情:驚き] （驚いた、意外な展開だった、または動揺した時）
+- [表情:あきれ] （あきれている、面倒くさがっている、またはジト目の時）
+- [表情:ハッピー] （喜んでいる、興奮している、またはテンションが高い時）
 `;
 
 function App() {
@@ -123,6 +133,7 @@ function App() {
           id: Date.now(),
           author: '黒猫',
           text: 'ふん……来たか、人間どもよ。\n我は神じゃ。ただの黒猫だと思うなよ。\n我に話しかけたい時はメッセージに「ねこ」と呼ぶがよい！',
+          userIcon: '/icons/neko/default.png',
           isCat: true
         };
         set(ref(db, 'chatMessages'), [welcome]);
@@ -296,8 +307,28 @@ function App() {
       const data = await response.json();
 
       if (data.candidates && data.candidates[0]) {
-        const replyText = data.candidates[0].content.parts[0].text;
-        addCatMessage(replyText, currentHistory);
+        let replyText = data.candidates[0].content.parts[0].text;
+        
+        // 感情タグの解析
+        let iconPath = '/icons/neko/default.png';
+        const emotionMap = {
+          '通常': 'default.png',
+          '怒り': 'angry.png',
+          'にやり': 'grin.png',
+          '悲しい': 'sad.png',
+          '驚き': 'surprised.png',
+          'あきれ': 'bored.png',
+          'ハッピー': 'happy.png'
+        };
+
+        const emotionMatch = replyText.match(/\[表情:(.*?)\]/);
+        if (emotionMatch && emotionMap[emotionMatch[1]]) {
+          iconPath = `/icons/neko/${emotionMap[emotionMatch[1]]}`;
+          // 本文からタグを削除
+          replyText = replyText.replace(/\[表情:.*?\]/g, '').trim();
+        }
+
+        addCatMessage(replyText, currentHistory, iconPath);
         // 猫の返信も通知する
         sendPushNotification("黒猫", replyText);
       } else if (data.error && (data.error.code === 429 || data.error.code === 503)) {
@@ -307,12 +338,12 @@ function App() {
         } else if (modelIndex < MODELS.length - 1) {
           await askGemini(currentHistory, modelIndex + 1, 0);
         } else {
-          addCatMessage("我は今とても忙しいのじゃ……また後で呼ぶがよい！", currentHistory);
+          addCatMessage("我は今とても忙しいのじゃ……また後で呼ぶがよい！", currentHistory, '/icons/neko/bored.png');
         }
       } else if (data.error) {
-        addCatMessage(`通信エラーじゃ！（${data.error.message}）`, currentHistory);
+        addCatMessage(`通信エラーじゃ！（${data.error.message}）`, currentHistory, '/icons/neko/sad.png');
       } else {
-        addCatMessage("むむ……我も少し疲れたわい。（予期せぬエラー）", currentHistory);
+        addCatMessage("むむ……我も少し疲れたわい。（予期せぬエラー）", currentHistory, '/icons/neko/sad.png');
       }
     } catch (error) {
       if (retryCount < 2) {
@@ -326,11 +357,11 @@ function App() {
     }
   };
 
-  const addCatMessage = (text, history) => {
+  const addCatMessage = (text, history, iconPath = '/icons/neko/default.png') => {
     const catMsg = {
       id: Date.now(),
       author: '黒猫',
-      userIcon: 'cat',
+      userIcon: iconPath, // ここに表情別の画像パスを入れる
       text: text,
       isCat: true
     };
@@ -342,7 +373,7 @@ function App() {
     if (FIREBASE_CONFIGURED) {
       set(ref(db, 'chatMessages'), newHistory);
     } else {
-      setMessages(prev => [...prev, catMsg]);
+      setMessages(newHistory);
     }
   };
 
@@ -402,7 +433,7 @@ function App() {
           const isCat = msg.isCat;
           // アイコンのURLを取得
           const iconInfo = USER_ICONS.find(i => i.id === msg.userIcon);
-          const iconSrc = isCat ? "/icon-square.png" : (iconInfo ? iconInfo.src : "/icons/papa.png");
+          const iconSrc = isCat ? (msg.userIcon || "/icons/neko/default.png") : (iconInfo ? iconInfo.src : "/icons/papa.png");
 
           return (
             <div key={msg.id} className={`message-row ${isMe ? 'me' : 'other'} ${isCat ? 'cat' : ''}`}>
@@ -426,7 +457,7 @@ function App() {
         {isTyping && (
           <div className="message-row other cat">
             <div className="avatar-container">
-               <img src="/icon-square.png" className="avatar-img" alt="猫" />
+               <img src="/icons/neko/default.png" className="avatar-img" alt="猫" />
                <div className="sender-name">黒猫</div>
             </div>
             <div className="bubble thinking">フンッ…考え中じゃ…</div>
