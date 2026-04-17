@@ -140,7 +140,7 @@ function App() {
           id: Date.now(),
           author: '黒猫',
           text: 'ふん……来たか、人間どもよ。\n我は神じゃ。ただの黒猫だと思うなよ。\n我に話しかけたい時はメッセージに「ねこ」と呼ぶがよい！',
-          userIcon: '/icons/neko/gentle.png',
+          userIcon: '/icons/neko/default.png',
           isCat: true
         };
         set(ref(db, 'chatMessages'), [welcome]);
@@ -317,7 +317,7 @@ function App() {
         let replyText = data.candidates[0].content.parts[0].text;
         
         // 感情タグの解析
-        let iconPath = '/icons/neko/gentle.png';
+        let iconPath = '/icons/neko/default.png';
         const emotionMap = {
           '通常': 'gentle.png',
           '怒り': 'angry.png',
@@ -441,7 +441,7 @@ function App() {
           const isCat = msg.isCat;
           // アイコンのURLを取得
           const iconInfo = USER_ICONS.find(i => i.id === msg.userIcon);
-          const iconSrc = isCat ? (msg.userIcon || "/icons/neko/gentle.png") : (iconInfo ? iconInfo.src : "/icons/papa.png");
+          const iconSrc = isCat ? (msg.userIcon || "/icons/neko/default.png") : (iconInfo ? iconInfo.src : "/icons/papa.png");
 
           return (
             <div key={msg.id} className={`message-row ${isMe ? 'me' : 'other'} ${isCat ? 'cat' : ''}`}>
@@ -465,7 +465,7 @@ function App() {
         {isTyping && (
           <div className="message-row other cat">
             <div className="avatar-container">
-               <img src="/icons/neko/gentle.png" className="avatar-img" alt="猫" />
+               <img src="/icons/neko/default.png" className="avatar-img" alt="猫" />
                <div className="sender-name">黒猫</div>
             </div>
             <div className="bubble thinking">フンッ…考え中じゃ…</div>
