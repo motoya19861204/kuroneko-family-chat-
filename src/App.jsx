@@ -294,7 +294,7 @@ function App() {
 
     const modelName = MODELS[modelIndex] || MODELS[0];
 
-    // 最新20件の履歴をGeminiの形式に変換
+    // 最新50件の履歴をGeminiの形式に変換
     const promptHistory = currentHistory.slice(-50).map(m => {
       return {
         role: m.isCat ? "model" : "user",
@@ -302,6 +302,11 @@ function App() {
         parts: [{ text: m.isCat ? m.text : `${m.author}「${m.text}」` }]
       };
     });
+
+    // 最後のメッセージにタグ出力の念押しを追加
+    if (promptHistory.length > 0 && promptHistory[promptHistory.length - 1].role === "user") {
+      promptHistory[promptHistory.length - 1].parts[0].text += "\n(返信の最後に必ず [mood:xxx] を付けて)";
+    }
 
     try {
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${GEMINI_API_KEY}`, {
@@ -341,12 +346,6 @@ function App() {
           }
           // 本文からタグを削除
           replyText = replyText.replace(/[\[［]mood[:：].*?[\］］]/gi, '').trim();
-        } else {
-          // ★ タグがない場合の情緒解析フォールバック（デフォルト顔回避）
-          if (replyText.includes('！') || replyText.includes('うれしい') || replyText.includes('褒める')) iconPath = '/icons/neko/happy.png';
-          else if (replyText.includes('？') || replyText.includes('なに') || replyText.includes('むむ')) iconPath = '/icons/neko/surprised.png';
-          else if (replyText.includes('フン') || replyText.includes('だめ') || replyText.includes('ムキ')) iconPath = '/icons/neko/angry.png';
-          else if (replyText.includes('のう') || replyText.includes('じゃ')) iconPath = '/icons/neko/gentle.png';
         }
 
         addCatMessage(replyText, currentHistory, iconPath, data.candidates[0].content.parts[0].text);
