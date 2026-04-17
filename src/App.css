@@ -175,7 +175,7 @@ body {
 .cat .avatar-img {
   object-fit: cover;
   object-position: center 20%; /* 耳が上端に来るように調整 */
-  transform: scale(1.15); /* 微調整：1.2から1.15へ少し小さく */
+  transform: scale(1.25); /* 1.15から1.25へ微増 */
 }
 
 .me-avatar {
@@ -267,7 +267,7 @@ body {
   margin-bottom: 15px;
   object-fit: cover;
   object-position: center 20%;
-  transform: scale(1.15);
+  transform: scale(1.25);
   background-color: white;
   border: 2px solid white;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
