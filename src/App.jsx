@@ -290,7 +290,7 @@ function App() {
     const modelName = MODELS[modelIndex] || MODELS[0];
 
     // 最新20件の履歴をGeminiの形式に変換
-    const promptHistory = currentHistory.slice(-20).map(m => {
+    const promptHistory = currentHistory.slice(-50).map(m => {
       return {
         role: m.isCat ? "model" : "user",
         // 黒猫自身の過去の発言にはカッコを付けず、人間の発言にだけ名前を付けて送る（AIの真似を防ぐため）
