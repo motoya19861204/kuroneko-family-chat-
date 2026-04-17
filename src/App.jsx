@@ -333,17 +333,23 @@ function App() {
         };
 
         // [mood:xxx] または ［mood:xxx］ を探す（全角にも対応）
-        const emotionMatch = replyText.match(/[\[［]mood[:：](.*?)[\］\]]/i);
+        const emotionMatch = replyText.match(/[\[［]mood[:：](.*?)[\］］]/i);
         if (emotionMatch && emotionMatch[1]) {
           const emotionKey = emotionMatch[1].trim().toLowerCase();
           if (emotionMap[emotionKey]) {
             iconPath = `/icons/neko/${emotionMap[emotionKey]}`;
           }
           // 本文からタグを削除
-          replyText = replyText.replace(/[\[［]mood[:：].*?[\］\]]/gi, '').trim();
+          replyText = replyText.replace(/[\[［]mood[:：].*?[\］］]/gi, '').trim();
+        } else {
+          // ★ タグがない場合の情緒解析フォールバック（デフォルト顔回避）
+          if (replyText.includes('！') || replyText.includes('うれしい') || replyText.includes('褒める')) iconPath = '/icons/neko/happy.png';
+          else if (replyText.includes('？') || replyText.includes('なに') || replyText.includes('むむ')) iconPath = '/icons/neko/surprised.png';
+          else if (replyText.includes('フン') || replyText.includes('だめ') || replyText.includes('ムキ')) iconPath = '/icons/neko/angry.png';
+          else if (replyText.includes('のう') || replyText.includes('じゃ')) iconPath = '/icons/neko/gentle.png';
         }
 
-        addCatMessage(replyText, currentHistory, iconPath);
+        addCatMessage(replyText, currentHistory, iconPath, data.candidates[0].content.parts[0].text);
         // 猫の返信も通知する
         sendPushNotification("黒猫", replyText);
       } else if (data.error && (data.error.code === 429 || data.error.code === 503)) {
@@ -372,13 +378,14 @@ function App() {
     }
   };
 
-  const addCatMessage = (text, history, iconPath = '/icons/neko/default.png') => {
+  const addCatMessage = (text, history, iconPath = '/icons/neko/default.png', rawText = '') => {
     const catMsg = {
       id: Date.now(),
       author: '黒猫',
-      userIcon: iconPath, // ここに表情別の画像パスを入れる
+      userIcon: iconPath, 
       text: text,
-      isCat: true
+      isCat: true,
+      rawText: rawText // デバッグ用に生の返信を保存
     };
     let newHistory = [...history, catMsg];
     if (newHistory.length > 1000) {
