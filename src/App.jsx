@@ -37,16 +37,16 @@ const SYSTEM_INSTRUCTION = `
 - 回答にカッコをふりがな以外の目的で使わないこと。
 
 【感情表現（最優先）】
-返信の最後に、以下のどれか「1つだけ」を、カッコも含めて「全く同じ文字」で必ず付け加えること。それ以外の文字（ポジティブ、ネガティブなど）は絶対に使わないこと。
+返信の最後に、以下のどれか「1つだけ」を、必ず付け加えること。カッコやコロンもそのままで書くこと。
 
-- [表情:通常] （普段のとき）
-- [表情:ハッピー] （とても嬉しい、喜びが顔に出ているとき）
-- [表情:優しい] （親切に教える、穏やかに話すとき）
-- [表情:にやり] （得意げ、不敵に笑うとき）
-- [表情:怒り] （怒る、厳しく叱るとき）
-- [表情:悲しい] （落ち込む、かわいそうに思うとき）
-- [表情:あきれ] （呆れる、ジト目をするとき）
-- [表情:驚き] （驚く、動揺したとき）
+- [mood:normal] （普段のとき）
+- [mood:happy] （とても嬉しい、喜びが顔に出ているとき）
+- [mood:gentle] （親切に教える、穏やかに話すとき）
+- [mood:grin] （得意げ、不敵に笑うとき）
+- [mood:angry] （怒る、厳しく叱るとき）
+- [mood:sad] （落ち込む、かわいそうに思うとき）
+- [mood:bored] （呆れる、ジト目をするとき）
+- [mood:surprise] （驚く、動揺したとき）
 `;
 
 function App() {
@@ -312,28 +312,27 @@ function App() {
         let replyText = data.candidates[0].content.parts[0].text;
         
         // 感情タグの解析
+        // 感情タグの解析 [mood:xxx] を探す
         let iconPath = '/icons/neko/default.png';
         const emotionMap = {
-          '通常': 'gentle.png',
-          'ハッピー': 'happy.png',
-          '優しい': 'gentle.png',
-          'にやり': 'grin.png',
-          '怒り': 'angry.png',
-          '悲しい': 'sad.png',
-          'あきれ': 'bored.png',
-          '驚き': 'surprised.png',
-          // AIが間違えそうなバリエーションも救済
-          'ポジティブ': 'happy.png',
-          'ネガティブ': 'angry.png',
-          'うれしい': 'happy.png',
-          'おこ': 'angry.png'
+          'normal': 'gentle.png',
+          'happy': 'happy.png',
+          'gentle': 'gentle.png',
+          'grin': 'grin.png',
+          'angry': 'angry.png',
+          'sad': 'sad.png',
+          'bored': 'bored.png',
+          'surprise': 'surprised.png'
         };
 
-        const emotionMatch = replyText.match(/\[表情:(.*?)\]/);
-        if (emotionMatch && emotionMap[emotionMatch[1]]) {
-          iconPath = `/icons/neko/${emotionMap[emotionMatch[1]]}`;
+        const emotionMatch = replyText.match(/\[mood:(.*?)\]/);
+        if (emotionMatch && emotionMatch[1]) {
+          const emotionKey = emotionMatch[1].trim().toLowerCase();
+          if (emotionMap[emotionKey]) {
+            iconPath = `/icons/neko/${emotionMap[emotionKey]}`;
+          }
           // 本文からタグを削除
-          replyText = replyText.replace(/\[表情:.*?\]/g, '').trim();
+          replyText = replyText.replace(/\[mood:.*?\]/g, '').trim();
         }
 
         addCatMessage(replyText, currentHistory, iconPath);
