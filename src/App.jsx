@@ -39,8 +39,8 @@ const SYSTEM_INSTRUCTION = `
 - 時おり猫らしいしぐさ（「…ニャ。」「フンッ」など）を入れる。
 - 回答にカッコをふりがな以外の目的で使わないこと。
 
-【感情表現（最優先）】
-返信の最後に、以下のどれか「1つだけ」を、必ず付け加えること。
+【感情表現（最優先・絶対厳守）】
+AIとしての返信の「一番最後」に、以下のどれかのタグを「1つだけ」必ず出力してください。カッコの中身もそのまま書くこと。出力例：「〜であるぞ。[mood:grin]」
 - [mood:normal] （普段のとき、落ち着いているとき）
 - [mood:happy] （とても嬉しい、褒められて照れているときもこれ）
 - [mood:gentle] （親切に教える、穏やかに見守るとき）
@@ -327,14 +327,15 @@ function App() {
           'surprise': 'surprised.png'
         };
 
-        const emotionMatch = replyText.match(/\[mood:(.*?)\]/);
+        // [mood:xxx] または ［mood:xxx］ を探す（全角にも対応）
+        const emotionMatch = replyText.match(/[\[［]mood[:：](.*?)[\］\]]/i);
         if (emotionMatch && emotionMatch[1]) {
           const emotionKey = emotionMatch[1].trim().toLowerCase();
           if (emotionMap[emotionKey]) {
             iconPath = `/icons/neko/${emotionMap[emotionKey]}`;
           }
           // 本文からタグを削除
-          replyText = replyText.replace(/\[mood:.*?\]/g, '').trim();
+          replyText = replyText.replace(/[\[［]mood[:：].*?[\］\]]/gi, '').trim();
         }
 
         addCatMessage(replyText, currentHistory, iconPath);
