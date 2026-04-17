@@ -45,6 +45,7 @@ const SYSTEM_INSTRUCTION = `
 - [表情:驚き] （驚いた、意外な展開だった、または動揺した時）
 - [表情:あきれ] （あきれている、面倒くさがっている、またはジト目の時）
 - [表情:ハッピー] （喜んでいる、興奮している、またはテンションが高い時）
+- [表情:優しい] （慈悲深い、優しく諭している、または親しみやすい時）
 `;
 
 function App() {
@@ -318,7 +319,8 @@ function App() {
           '悲しい': 'sad.png',
           '驚き': 'surprised.png',
           'あきれ': 'bored.png',
-          'ハッピー': 'happy.png'
+          'ハッピー': 'happy.png',
+          '優しい': 'gentle.png'
         };
 
         const emotionMatch = replyText.match(/\[表情:(.*?)\]/);
