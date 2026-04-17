@@ -317,7 +317,7 @@ function App() {
         // 感情タグの解析 [mood:xxx] を探す
         let iconPath = '/icons/neko/default.png';
         const emotionMap = {
-          'normal': 'default.png',
+          'normal': 'gentle.png',
           'happy': 'happy.png',
           'gentle': 'gentle.png',
           'grin': 'grin.png',
