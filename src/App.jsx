@@ -72,58 +72,6 @@ function App() {
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
 
-  // OneSignal初期化
-  useEffect(() => {
-    if (ONESIGNAL_APP_ID) {
-      window.OneSignalDeferred = window.OneSignalDeferred || [];
-      window.OneSignalDeferred.push(async function(OneSignal) {
-        await OneSignal.init({
-          appId: ONESIGNAL_APP_ID,
-          safari_web_id: "web.onesignal.auto.10425890-580a-4221-a477-7427189154f3",
-          notifyButton: {
-            enable: true,
-          },
-        });
-        
-        // ログイン済みならタグを設定
-        if (userName) {
-          OneSignal.User.addTag("user_name", userName);
-        }
-      });
-    }
-  }, [userName]);
-
-  // 通知を送信する関数 (OneSignal REST API)
-  const sendPushNotification = async (author, text) => {
-    if (!ONESIGNAL_APP_ID || !ONESIGNAL_REST_KEY) return;
-
-    try {
-      const response = await fetch("https://onesignal.com/api/v1/notifications", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-          "Authorization": `Basic ${ONESIGNAL_REST_KEY}`
-        },
-        body: JSON.stringify({
-          app_id: ONESIGNAL_APP_ID,
-          included_segments: ["All"], // 全員に送る
-          headings: { "en": "黒猫ファミリーチャット", "ja": "黒猫ファミリーチャット" },
-          contents: { "en": `${author}: ${text}`, "ja": `${author}: ${text}` },
-          url: "https://kuroneko-family-chat.vercel.app/" // アプリを開くURL
-        })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("OneSignal API Error details:", errorData);
-      } else {
-        console.log("Push notification sent successfully!");
-      }
-    } catch (err) {
-      console.error("Critical Push notification error:", err);
-    }
-  };
-
   // 初回ロード時とFirebaseからの同期
   useEffect(() => {
     if (!FIREBASE_CONFIGURED) return;
@@ -136,11 +84,6 @@ function App() {
         // キー付きオブジェクトから配列に変換（limitToLastを使うと構造が変わる可能性があるため）
         const messageArray = Object.values(data);
         setMessages(messageArray);
-
-        // バッジ（通知）の更新：画面を見ていない時に新着があれば
-        if (!document.hasFocus() && 'setAppBadge' in navigator) {
-          navigator.setAppBadge();
-        }
       } else {
         // 空の場合はウェルカムメッセージをセット
         const welcome = {
@@ -215,12 +158,9 @@ function App() {
     }
   };
 
-  // 画面に戻った時にバッジを消す
+  // 画面に戻った時に更新などがあればここに
   useEffect(() => {
     const handleFocus = () => {
-      if ('clearAppBadge' in navigator) {
-        navigator.clearAppBadge();
-      }
     };
     window.addEventListener('focus', handleFocus);
     return () => window.removeEventListener('focus', handleFocus);
@@ -279,9 +219,6 @@ function App() {
       setMessages(newHistory); // ローカルフォールバック
     }
     setInputValue('');
-
-    // 通知を飛ばす
-    sendPushNotification(userName, inputValue.trim());
 
     // AI呼び出しトリガー：「ねこ」「ネコ」「猫」「クロ」が含まれている場合
     const triggerWords = ['ねこ', 'ネコ', '猫', 'クロ', '神様'];
@@ -366,8 +303,6 @@ function App() {
         }
 
         addCatMessage(replyText, currentHistory, iconPath, data.candidates[0].content.parts[0].text);
-        // 猫の返信も通知する
-        sendPushNotification("黒猫", replyText);
       } else if (data.error && (data.error.code === 429 || data.error.code === 503)) {
         if (retryCount < 2) {
           await new Promise(resolve => setTimeout(resolve, 1000));

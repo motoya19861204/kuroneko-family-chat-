@@ -18,27 +18,17 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 async function investigate() {
-    console.log("Investigating chat messages...");
+    console.log("=== LATEST CHAT MESSAGES ANALYZER ===");
     const chatRef = ref(db, 'chatMessages');
-    const q = query(chatRef, limitToLast(50));
+    const q = query(chatRef, limitToLast(10));
     const snapshot = await get(q);
     
     if (snapshot.exists()) {
-        const messages = snapshot.val();
-        Object.values(messages).forEach(msg => {
-            if (msg.author === '黒猫') {
-                console.log(`--- [Cat Message] ---`);
-                console.log(`Text: ${msg.text}`);
-                console.log(`Icon: ${msg.userIcon}`);
-                
-                // タグが残っているかチェック
-                const hasTag = msg.text.match(/[\[［]mood[:：].*?[\］］]/i);
-                if (hasTag) {
-                    console.log(`>>> DETECTED UNMATCHED TAG: ${hasTag[0]}`);
-                } else {
-                    console.log(`(No tags found in text)`);
-                }
-            }
+        const messages = Object.values(snapshot.val()).sort((a,b) => a.id - b.id);
+        messages.forEach(msg => {
+            console.log(`\n[${msg.id}] ${msg.author}: "${msg.text}"`);
+            console.log(`Icon: ${msg.userIcon}`);
+            if (msg.rawText) console.log(`Raw: "${msg.rawText.replace(/\n/g, '\\n')}"`);
         });
     } else {
         console.log("No messages found.");
