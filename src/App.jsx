@@ -59,7 +59,11 @@ const SYSTEM_INSTRUCTION = `
 function App() {
   const [userName, setUserName] = useState(localStorage.getItem('userName') || '');
   const [userIcon, setUserIcon] = useState(localStorage.getItem('userIcon') || 'papa');
+  const [isAuthorized, setIsAuthorized] = useState(localStorage.getItem('isAuthorized') === 'true');
   const [isJoined, setIsJoined] = useState(false); // ★ 常に最初は名前確認画面を出すように変更
+  const [passcodeInput, setPasscodeInput] = useState('');
+  const [passcodeError, setPasscodeError] = useState(false);
+  const FAMILY_PASSCODE = import.meta.env.VITE_FAMILY_PASSCODE || '1234'; // デフォルト1234
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -227,6 +231,18 @@ function App() {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages, isJoined]);
+
+  const handlePasscodeSubmit = (e) => {
+    e.preventDefault();
+    if (passcodeInput === FAMILY_PASSCODE) {
+      localStorage.setItem('isAuthorized', 'true');
+      setIsAuthorized(true);
+      setPasscodeError(false);
+    } else {
+      setPasscodeError(true);
+      setPasscodeInput('');
+    }
+  };
 
   const handleJoin = (e) => {
     e.preventDefault();
@@ -404,6 +420,31 @@ function App() {
         <h2>⚠️ データベースの接続が必要です</h2>
         <p>本番の家族チャット（端末間通信）を利用するには、Firebaseの設定が必要です。</p>
         <p>VSCode内の <b>.env</b> ファイルを開き、Firebaseの接続情報を入力してください。</p>
+      </div>
+    );
+  }
+
+  if (!isAuthorized) {
+    return (
+      <div className="login-screen">
+        <div className="avatar-frame login-avatar-frame">
+          <img src="/icons/neko/default.png" alt="黒猫" className="login-cat-icon" />
+        </div>
+        <h2>🔓 合言葉を教えての</h2>
+        <form onSubmit={handlePasscodeSubmit} style={{ width: '100%', textAlign: 'center' }}>
+          <div className="input-group">
+            <input 
+              type="password" 
+              value={passcodeInput}
+              onChange={(e) => setPasscodeInput(e.target.value)}
+              placeholder="合言葉を入力" 
+              required 
+              style={{ fontSize: '1.2rem', textAlign: 'center', letterSpacing: '0.3rem' }}
+            />
+          </div>
+          {passcodeError && <p style={{ color: '#ff4b4b', fontWeight: 'bold' }}>合言葉が違うぞ！やり直しじゃ！</p>}
+          <button type="submit" className="login-btn">鍵を開ける</button>
+        </form>
       </div>
     );
   }
