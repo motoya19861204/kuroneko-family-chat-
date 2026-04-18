@@ -61,6 +61,7 @@ function App() {
   const [userIcon, setUserIcon] = useState(localStorage.getItem('userIcon') || 'papa');
   const [isAuthorized, setIsAuthorized] = useState(localStorage.getItem('isAuthorized') === 'true');
   const [isJoined, setIsJoined] = useState(false); // ★ 常に最初は名前確認画面を出すように変更
+  // 設定された合言葉（Vercelの環境変数から取得）
   const [passcodeInput, setPasscodeInput] = useState('');
   const [passcodeError, setPasscodeError] = useState(false);
   const FAMILY_PASSCODE = import.meta.env.VITE_FAMILY_PASSCODE || '1234'; // デフォルト1234
