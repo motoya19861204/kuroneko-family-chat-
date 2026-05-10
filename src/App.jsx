@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
-import { db } from './firebase';
+import { db, auth } from './firebase';
 import { ref, onValue, set, query, limitToLast } from 'firebase/database';
+import { signInAnonymously } from 'firebase/auth';
 
 const FIREBASE_CONFIGURED = !!import.meta.env.VITE_FIREBASE_API_KEY;
 
@@ -65,6 +66,15 @@ function App() {
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
   const stampPickerRef = useRef(null);
+
+  // 匿名認証の実行
+  useEffect(() => {
+    if (FIREBASE_CONFIGURED) {
+      signInAnonymously(auth).catch((error) => {
+        console.error("Firebase Authentication Error:", error);
+      });
+    }
+  }, []);
 
   // 初回ロード時とFirebaseからの同期
   useEffect(() => {
