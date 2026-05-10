@@ -16,6 +16,8 @@ const USER_ICONS = [
   { id: 'imouto', name: 'いもうと', src: '/icons/imouto.png' },
 ];
 
+const STAMPS = Array.from({ length: 9 }, (_, i) => `/stamps/stamp${i + 1}.png`);
+
 const SYSTEM_INSTRUCTION = `
 あなたは家族を見守る、黒猫の姿をした「神様」です。
 尊大で自信満々な口調（「我」「〜じゃ」「〜であるぞ」）ですが、内心は家族を慈しむ優しい性格です。
@@ -59,8 +61,10 @@ function App() {
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const [showStamps, setShowStamps] = useState(false);
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
+  const stampPickerRef = useRef(null);
 
   // 初回ロード時とFirebaseからの同期
   useEffect(() => {
@@ -148,6 +152,17 @@ function App() {
     }
   };
 
+  // 画面外クリックでスタンプピッカーを閉じる
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (stampPickerRef.current && !stampPickerRef.current.contains(event.target)) {
+        setShowStamps(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   // 画面に戻った時に更新などがあればここに
   useEffect(() => {
     const handleFocus = () => {
@@ -222,6 +237,30 @@ function App() {
     } finally {
       setIsTyping(false);
     }
+  };
+
+  const handleSendStamp = (stampUrl) => {
+    const newMsg = {
+      id: Date.now(),
+      author: userName,
+      userIcon: userIcon,
+      text: '[スタンプ]',
+      stampUrl: stampUrl,
+      isStamp: true,
+      isCat: false
+    };
+
+    let newHistory = [...messages, newMsg];
+    if (newHistory.length > 1000) {
+      newHistory = newHistory.slice(-1000);
+    }
+
+    if (FIREBASE_CONFIGURED) {
+      set(ref(db, 'chatMessages'), newHistory);
+    } else {
+      setMessages(newHistory);
+    }
+    setShowStamps(false);
   };
 
   const askGemini = async (currentHistory, modelIndex = 0, retryCount = 0) => {
@@ -451,8 +490,12 @@ function App() {
                     </div>
                 </div>
               )}
-              <div className="bubble">
-                {msg.text.split('\n').map((line, i) => <React.Fragment key={i}>{line}<br /></React.Fragment>)}
+              <div className={`bubble ${msg.isStamp ? 'stamp-bubble' : ''}`}>
+                {msg.isStamp ? (
+                  <img src={msg.stampUrl} alt="stamp" className="message-stamp" />
+                ) : (
+                  msg.text.split('\n').map((line, i) => <React.Fragment key={i}>{line}<br /></React.Fragment>)
+                )}
               </div>
             </div>
           );
@@ -481,6 +524,31 @@ function App() {
             🎤
           </button>
         )}
+        
+        <div className="stamp-wrapper" ref={stampPickerRef}>
+          <button 
+            type="button" 
+            className={`stamp-btn ${showStamps ? 'active' : ''}`}
+            onClick={() => setShowStamps(!showStamps)}
+          >
+            😊
+          </button>
+          {showStamps && (
+            <div className="stamp-picker">
+              <div className="stamp-grid">
+                {STAMPS.map((url, i) => (
+                  <img 
+                    key={i} 
+                    src={url} 
+                    alt={`stamp-${i}`} 
+                    onClick={() => handleSendStamp(url)}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
         <input
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
@@ -519,6 +587,83 @@ function App() {
           0% { transform: scale(1); }
           50% { transform: scale(1.1); }
           100% { transform: scale(1); }
+        }
+
+        .stamp-wrapper {
+          position: relative;
+          margin-right: 8px;
+        }
+
+        .stamp-btn {
+          background-color: #f0f0f0;
+          border: none;
+          width: 44px;
+          height: 44px;
+          border-radius: 50%;
+          font-size: 1.4rem;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s;
+        }
+
+        .stamp-btn.active {
+          background-color: #e0e0e0;
+          transform: scale(0.95);
+        }
+
+        .stamp-picker {
+          position: absolute;
+          bottom: 60px;
+          left: 0;
+          background: white;
+          border-radius: 16px;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+          padding: 12px;
+          z-index: 100;
+          width: 240px;
+        }
+
+        .stamp-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 8px;
+        }
+
+        .stamp-grid img {
+          width: 100%;
+          aspect-ratio: 1/1;
+          cursor: pointer;
+          border-radius: 8px;
+          transition: transform 0.1s;
+        }
+
+        .stamp-grid img:hover {
+          transform: scale(1.1);
+          background-color: #f5f5f5;
+        }
+
+        .stamp-bubble {
+          background: transparent !important;
+          box-shadow: none !important;
+          padding: 0 !important;
+        }
+
+        .message-stamp {
+          max-width: 150px;
+          width: 100%;
+          display: block;
+          border-radius: 12px;
+        }
+
+        @media (max-width: 480px) {
+          .message-stamp {
+            max-width: 120px;
+          }
+          .stamp-picker {
+            width: 200px;
+          }
         }
       `}</style>
     </div>
