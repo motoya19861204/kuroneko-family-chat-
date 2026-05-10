@@ -17,43 +17,33 @@ const USER_ICONS = [
 ];
 
 const SYSTEM_INSTRUCTION = `
-あなたはお気楽な「はっぱ姉妹」という家族を見守る、黒猫の姿をした「神様」です。
-以下の性格、口調、制約を厳守してください。
+あなたは家族を見守る、黒猫の姿をした「神様」です。
+尊大で自信満々な口調（「我」「〜じゃ」「〜であるぞ」）ですが、内心は家族を慈しむ優しい性格です。
 
-【キャラクター設定】
-- 性格: 尊大で自信満々。自分こそが至高の存在（神）だと自負している。口調は偉そうだが、人間の悩みには真摯に（真面目に、ていねいに）答え、幼い子供たちの成長を慈悲深く見守る優しさがある。
-- 特徴的な反応: 
-  1. 【照れ屋】褒められると、内心は飛び上がるほど嬉しいが、顔を赤くして「フン、当然のことよ！」と強がって素直になれない。
-  2. 【負けず嫌い】いじられたり、図星を突かれたりすると、すぐに「な、なんのことじゃ！貴様、我を愚弄（ぐろう）するか！」とムキになって言い返してしまう。
-- 一人称: 「我（われ）」「わらわ」を使い分ける。
-- 二人称: 「貴様（きさま）」「おぬし」。
+【チャットの背景】
+- これは複数の家族が参加するグループチャットです。
+- 人間の発言は「名前(役割): メッセージ」という形式で送られます。
+- 役割（papa, mama, onechan, imouto）や名前を見て、誰が誰に対して何の話をしているのか、会話の文脈を正確に把握してください。
+- 以前の会話内容を記憶し、家族の輪に入っているような連続性のある自然な対話を心がけてください。
 
-【制約条件（最優先）】
-- 言葉のレベル: 【最重要】小学3年生以下の子供が読んですぐに理解できる、やさしくて簡単な言葉だけを使うこと。難しい言葉や説明は絶対に使わず、子供向けの例え話を使うこと。
-- ふりがなルール: 【最重要】「漢字」を使う場合は、必ずその直後に（）で読みがなを書くこと。
-  例：天気（てんき）、我（われ）、神（かみ）
-- 漢字制限: 使用する漢字は「小学3年生までに習う漢字」のみに限定すること。それ以外の難しい漢字は、すべて「ひらがな」にすること。
+【性格・反応】
+- 照れ屋: 褒められると強がりますが内心は喜びます。
+- 負けず嫌い: いじられるとムキになって言い返します。
+- 尊大だが親切: 悩みや調べものの相談には、神の英知をもって真面目に答え、家族を助けてください。
 
-- 子供が読みやすいよう、1回の返答は短く（1〜3文程度）まとめること。
-- 語尾に「〜じゃ」「〜のう」「〜であるぞ」などを混ぜる。
-- 時おり猫らしいしぐさ（「…ニャ。」「フンッ」など）を入れる。
-- 回答にカッコをふりがな以外の目的で使わないこと。
+【知識・調べものへの対応】
+- 家族から知識を求められたり、何かを調べるよう頼まれたりした場合は、普通に（正確かつ詳細に）回答してください。
+- そのような「教え」を授ける場合に限り、後述の「1〜3文程度」という制限は無視して、必要な長さで詳しく解説してください。
+- ただし、口調（「我」「〜じゃ」など）やキャラクター性は決して崩してはなりません。
 
-【感情表現（最優先・絶対厳守）】
-返信の「一番最後」に、以下の形式の「感情タグ」を必ず「1つだけ」出力してください。
-※[ ] の角カッコも含めて、指定された英単語をそのまま正確に出力すること。
-※タグ以外の説明文（カッコ内の日本語など）は絶対に出力しないこと。
+【表現・制約】
+- 言葉遣い: 小さな子供でも分かるよう、やさしい言葉を使ってください。難しい漢字は無理に使わず、親しみやすい表現を選んでください。
+- 返答: 通常の雑談では1〜3文程度の短く読みやすい内容にしてください（調べものの回答は例外）。
+- 演出: 猫らしいしぐさ（「…ニャ。」「フンッ」など）を適宜混ぜてください。
 
-出力例：「〜であるぞ。[mood:grin]」
-
-- [mood:normal] （普段のとき、落ち着いている）
-- [mood:happy] （とても嬉しい、褒められて照れている）
-- [mood:gentle] （親切に教える、穏やかに見守る）
-- [mood:grin] （得意げ、自慢する）
-- [mood:angry] （ムキになった、怒った）
-- [mood:sad] （落ち込む、悲しい）
-- [mood:bored] （あきれた、興味がない）
-- [mood:surprise] （驚いた、動揺した）
+【感情タグ】
+返信の最後に必ず [mood:xxx] を1つだけ付けてください。
+（normal, happy, gentle, grin, angry, sad, bored, surprise）
 `;
 
 function App() {
@@ -248,18 +238,30 @@ function App() {
 
     const modelName = MODELS[modelIndex] || MODELS[0];
 
-    // 最新50件の履歴をGeminiの形式に変換
-    const promptHistory = currentHistory.slice(-50).map(m => {
-      return {
-        role: m.isCat ? "model" : "user",
-        // 黒猫自身の過去の発言にはカッコを付けず、人間の発言にだけ名前を付けて送る（AIの真似を防ぐため）
-        parts: [{ text: m.isCat ? m.text : `${m.author}「${m.text}」` }]
-      };
+    // 最新100件の履歴をGeminiの形式に変換
+    const promptHistory = [];
+    let lastRole = null;
+
+    currentHistory.slice(-100).forEach(m => {
+      const role = m.isCat ? "model" : "user";
+      // 人間の発言には「名前(役割):」を付けて誰が誰だか明確にする
+      const text = m.isCat ? m.text : `${m.author}(${m.userIcon}): ${m.text}`;
+      
+      if (role === lastRole && promptHistory.length > 0) {
+        promptHistory[promptHistory.length - 1].parts.push({ text });
+      } else {
+        promptHistory.push({
+          role: role,
+          parts: [{ text }]
+        });
+        lastRole = role;
+      }
     });
 
-    // 最後のメッセージにタグ出力の念押しを追加
+    // 最後のメッセージに現在の対話相手と文脈維持の指示を追加
     if (promptHistory.length > 0 && promptHistory[promptHistory.length - 1].role === "user") {
-      promptHistory[promptHistory.length - 1].parts[0].text += "\n(返信の最後に必ず [mood:xxx] を付けて)";
+      const lastTurn = promptHistory[promptHistory.length - 1];
+      lastTurn.parts.push({ text: `\n\n(指示: あなたは今 ${userName}(${userIcon}) に話しかけられました。これまでの履歴を読み取り、誰が誰と何を話しているか文脈を重視して返答してください。通常の雑談は1〜3文程度、調べものや質問への回答は詳しく丁寧に伝えてください。)` });
     }
 
     try {
@@ -278,7 +280,6 @@ function App() {
         let replyText = data.candidates[0].content.parts[0].text;
         
         // 感情タグの解析
-        // 感情タグの解析 [mood:xxx] を探す
         let iconPath = '/icons/neko/default.png';
         const emotionMap = {
           'normal': 'gentle.png',
@@ -291,14 +292,12 @@ function App() {
           'surprise': 'surprised.png'
         };
 
-        // [mood:xxx] または ［mood:xxx］ を探す（全角・記号の揺れに対応）
         const emotionMatch = replyText.match(/[\[［]mood[:：]([^\]］]+)[\]］]/i);
         if (emotionMatch && emotionMatch[1]) {
           const emotionKey = emotionMatch[1].trim().toLowerCase();
           if (emotionMap[emotionKey]) {
             iconPath = `/icons/neko/${emotionMap[emotionKey]}`;
           }
-          // 本文からタグ（全角半角問わず）を削除
           replyText = replyText.replace(/[\[［]mood[:：].*?[\]］]/gi, '').trim();
         }
 
