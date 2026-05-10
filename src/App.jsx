@@ -16,7 +16,7 @@ const USER_ICONS = [
   { id: 'imouto', name: 'いもうと', src: '/icons/imouto.png' },
 ];
 
-const STAMPS = Array.from({ length: 9 }, (_, i) => `/stamps/stamp${i + 1}.png`);
+const STAMPS = Array.from({ length: 16 }, (_, i) => `/stamps/stamp${i + 1}.png`);
 
 const SYSTEM_INSTRUCTION = `
 あなたは家族を見守る、黒猫の姿をした「神様」です。
